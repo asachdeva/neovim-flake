@@ -2,7 +2,6 @@
 
 A highly configurable nix flake for neovim.
 
-Come join the Matrix room if you have any questions or need help: [#neovim-flake:matrix.org](https://matrix.to/#/#neovim-flake:matrix.org)
 
 ## Documentation
 
@@ -11,12 +10,9 @@ See the [neovim-flake Manual](https://jordanisaacs.github.io/neovim-flake/) for 
 If you want to dive right into trying neovim-flake you can get a fully featured configuration with `nix` language support by running:
 
 ```
-nix run github:jordanisaacs/neovim-flake
+nix run github:asachdeva/neovim-flake
 ```
 
-## Screenshot
-
-![screenshot](./screenshot.png)
 
 ## Philosophy
 
@@ -27,4 +23,4 @@ As a result, one should never get a broken config when setting options. If setti
 
 ## Credit
 
-Originally based on Wil Taylor's amazing [neovim-flake](https://github.com/wiltaylor/neovim-flake)
+Originally based on Jordan Isaacs [neovim-flake](https://github.com/jordanisaacs/neovim-flake)
