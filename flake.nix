@@ -1,5 +1,5 @@
 {
-  description = "Jordan's Neovim Configuration";
+  description = "Akshay's Neovim Configuration";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -30,12 +30,6 @@
     plugin-nvim-lspconfig.url = "github:neovim/nvim-lspconfig";
     plugin-nvim-lspconfig.flake = false;
 
-    plugin-lspsaga.url = "github:tami5/lspsaga.nvim";
-    plugin-lspsaga.flake = false;
-
-    plugin-lspkind.url = "github:onsails/lspkind-nvim";
-    plugin-lspkind.flake = false;
-
     plugin-trouble.url = "github:folke/trouble.nvim";
     plugin-trouble.flake = false;
 
@@ -47,9 +41,6 @@
 
     plugin-nvim-code-action-menu.url = "github:weilbith/nvim-code-action-menu";
     plugin-nvim-code-action-menu.flake = false;
-
-    plugin-lsp-signature.url = "github:ray-x/lsp_signature.nvim";
-    plugin-lsp-signature.flake = false;
 
     plugin-null-ls.url = "github:jose-elias-alvarez/null-ls.nvim";
     plugin-null-ls.flake = false;
@@ -89,6 +80,7 @@
     plugin-telescope-file-browser.flake = false;
 
     plugin-telescope-live-grep-args.url = "github:nvim-telescope/telescope-live-grep-args.nvim";
+
     plugin-telescope-live-grep-args.flake = false;
 
     # Filetrees
@@ -107,26 +99,6 @@
     plugin-nvim-cmp.url = "github:hrsh7th/nvim-cmp";
     plugin-nvim-cmp.flake = false;
 
-    plugin-cmp-buffer.url = "github:hrsh7th/cmp-buffer";
-    plugin-cmp-buffer.flake = false;
-
-    plugin-cmp-nvim-lsp.url = "github:hrsh7th/cmp-nvim-lsp";
-    plugin-cmp-nvim-lsp.flake = false;
-
-    plugin-cmp-vsnip.url = "github:hrsh7th/cmp-vsnip";
-    plugin-cmp-vsnip.flake = false;
-
-    plugin-cmp-path.url = "github:hrsh7th/cmp-path";
-    plugin-cmp-path.flake = false;
-
-    plugin-cmp-treesitter.url = "github:ray-x/cmp-treesitter";
-    plugin-cmp-treesitter.flake = false;
-
-    plugin-cmp-dap.url = "github:rcarriga/cmp-dap";
-    plugin-cmp-dap.flake = false;
-
-    # snippets
-    plugin-vim-vsnip.url = "github:hrsh7th/vim-vsnip";
     plugin-vim-vsnip.flake = false;
 
     # Autopairs
@@ -164,6 +136,7 @@
     plugin-dracula-nvim.url = "github:Mofiqul/dracula.nvim";
     plugin-dracula-nvim.flake = false;
 
+
     plugin-dracula.url = "github:dracula/vim";
     plugin-dracula.flake = false;
 
@@ -188,6 +161,7 @@
     plugin-nvim-web-devicons.url = "github:kyazdani42/nvim-web-devicons";
     plugin-nvim-web-devicons.flake = false;
 
+
     plugin-gitsigns-nvim.url = "github:lewis6991/gitsigns.nvim";
     plugin-gitsigns-nvim.flake = false;
 
@@ -198,6 +172,7 @@
     # Markdown
     plugin-glow-nvim.url = "github:ellisonleao/glow.nvim";
     plugin-glow-nvim.flake = false;
+
 
     # SCNvim
     plugin-scnvim.url = "github:davidgranstrom/scnvim";
@@ -249,7 +224,8 @@
         let
           overrideable = nixpkgs.lib.mkOverride 1200; # between mkOptionDefault and mkDefault
         in
-        {
+
+          {
           config = {
             build.viAlias = overrideable false;
             build.vimAlias = overrideable true;
@@ -257,6 +233,7 @@
               enableLSP = overrideable true;
               enableFormat = overrideable true;
               enableTreesitter = overrideable true;
+
               enableExtraDiagnostics = overrideable true;
               enableDebugger = overrideable true;
 
@@ -271,9 +248,6 @@
               };
               ts.enable = overrideable isMaximal;
               go.enable = overrideable isMaximal;
-              zig.enable = overrideable isMaximal;
-              python.enable = overrideable isMaximal;
-              plantuml.enable = overrideable isMaximal;
               bash.enable = overrideable isMaximal;
 
               # See tidal config
@@ -359,10 +333,6 @@
         ];
       };
 
-      docs = import ./docs {
-        inherit pkgs;
-        nmdSrc = inputs.nmd;
-      };
 
       tidalPkg = buildPkg pkgs [ tidalConfig ];
       nixPkg = buildPkg pkgs [ nixConfig ];
@@ -404,9 +374,6 @@
 
       packages =
         {
-          docs-html = docs.manual.html;
-          docs-manpages = docs.manPages;
-          docs-json = docs.options.json;
           default = nixPkg;
           nix = nixPkg;
           maximal = maximalPkg;
