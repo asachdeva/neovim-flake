@@ -1,386 +1,767 @@
+# Copyright (c) 2025 asachdeva 
+# Licensed under the MIT license
 {
-  description = "Akshay's Neovim Configuration";
+  description = "Shila-jeets neovim flake, with extra cats, lua haskell and rust! nixCats!";
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixCats.url = "github:BirdeeHub/nixCats-nvim";
     flake-utils.url = "github:numtide/flake-utils";
-    # For generating documentation website
-    nmd.url = "sourcehut:~rycee/nmd";
-    nmd.flake = false;
 
-    # Language server (use master instead of nixpkgs)
-    rnix-lsp.url = "github:nix-community/rnix-lsp";
-    rnix-lsp.inputs.nixpkgs.follows = "flake-utils";
-    rnix-lsp.inputs.utils.follows = "flake-utils";
+    neovim-nightly-overlay = {
+       url = "github:nix-community/neovim-nightly-overlay";
+    };
 
+    # nix lsp support
     nil.url = "github:oxalica/nil";
-    nil.inputs.nixpkgs.follows = "nixpkgs";
-    nil.inputs.flake-utils.follows = "flake-utils";
+    nixd.url = "github:nix-community/nixd";
 
-    # Tidal cycles
-    tidalcycles.url = "github:mitchmindtree/tidalcycles.nix";
-    tidalcycles.inputs.vim-tidal-src.url = "github:tidalcycles/vim-tidal";
+    # Tree-sitter parsers
+    tree-sitter-haskell = {
+      url = "github:tree-sitter/tree-sitter-haskell";
+      flake = false;
+    };
 
-    ## Plugins (must begin with plugin-)
+    tree-sitter-rust = {
+      url = "github:tree-sitter/tree-sitter-rust";
+      flake = false;
+    };
 
-    # tresitter plugins
-    plugin-nvim-treesitter-context.url = "github:nvim-treesitter/nvim-treesitter-context";
-    plugin-nvim-treesitter-context.flake = false;
+    tree-sitter-typescript = {
+      url = "github:tree-sitter/tree-sitter-typescript";
+      flake= false;
+    };
 
-    # LSP plugins
-    plugin-nvim-lspconfig.url = "github:neovim/nvim-lspconfig";
-    plugin-nvim-lspconfig.flake = false;
+    tree-sitter-scala = {
+      url = "github:tree-sitter/tree-sitter-scala";
+      flake = false;
+    };
+    
+    tree-sitter-bash = {
+      url = "github:tree-sitter/tree-sitter-bash";
+      flake = false;
+    };
+      
+    # AI plugins
+    nvim-chatgpt = {
+      url = "github:jackMort/ChatGPT.nvim";
+      flake = false;
+    };
 
-    plugin-trouble.url = "github:folke/trouble.nvim";
-    plugin-trouble.flake = false;
+    # Notifications
+    nvim-notify = {
+      url = "github:rcarriga/nvim-notify";
+      flake = false;
+    };
 
-    plugin-nvim-lightbulb.url = "github:kosayoda/nvim-lightbulb";
-    plugin-nvim-lightbulb.flake = false;
+    # Mini-nvim
+     mini-nvim = {
+      url = "github:echasnovski/mini.nvim";
+      flake = false;
+    };
 
-    plugin-fidget.url = "github:j-hui/fidget.nvim";
-    plugin-fidget.flake = false;
+    nvim-surround = {
+      url = "github:kylechui/nvim-surround";
+      flake = false;
+    };
 
-    plugin-nvim-code-action-menu.url = "github:weilbith/nvim-code-action-menu";
-    plugin-nvim-code-action-menu.flake = false;
-
-    plugin-null-ls.url = "github:jose-elias-alvarez/null-ls.nvim";
-    plugin-null-ls.flake = false;
-
-    plugin-sqls-nvim.url = "github:nanotee/sqls.nvim";
-    plugin-sqls-nvim.flake = false;
-
-    plugin-rust-tools.url = "github:simrat39/rust-tools.nvim";
-    plugin-rust-tools.flake = false;
-
-    # Not primary repo, waiting on PR
-    plugin-ccls-nvim.url = "github:MCGHH/ccls.nvim";
-    plugin-ccls-nvim.flake = false;
-
-    # Debugger
-    plugin-nvim-dap.url = "github:mfussenegger/nvim-dap";
-    plugin-nvim-dap.flake = false;
-
-    plugin-nvim-dap-ui.url = "github:rcarriga/nvim-dap-ui";
-    plugin-nvim-dap-ui.flake = false;
-
-    plugin-nvim-dap-virtual-text.url = "github:theHamsta/nvim-dap-virtual-text";
-    plugin-nvim-dap-virtual-text.flake = false;
+    nvim-spider = {
+      url = "github:chrisgrieser/nvim-spider";
+      flake = false;
+    };
 
     # Copying/Registers
-    plugin-registers.url = "github:tversteeg/registers.nvim";
-    plugin-registers.flake = false;
+    nvim-neoclip = {
+      url = "github:AckslD/nvim-neoclip.lua";
+      flake = false;
+    };
 
-    plugin-nvim-neoclip.url = "github:AckslD/nvim-neoclip.lua";
-    plugin-nvim-neoclip.flake = false;
+    # Marks/Registers
+    harpoon = {
+      #url = github:ThePrimeagen/harpoon?ref=harpoon2;
+      url = "github:kimabrandt-flx/harpoon?ref=fix_marks_index";
+      flake = false;
+    };
+
+    tide = {
+      url = "github:jackMort/tide.nvim";
+      flake = false;
+    };
+
+    # Distraction-free coding
+    twilight = {
+      url = "github:folke/twilight.nvim";
+      flake = false;
+    };
+
+    zen-mode = {
+      url = "github:folke/zen-mode.nvim";
+      flake = false;
+    };
+
+    # LSP plugins
+    nvim-lspconfig = {
+      url = "github:neovim/nvim-lspconfig";
+      flake = false;
+    };
+
+    nvim-treesitter = {
+      url = "github:nvim-treesitter/nvim-treesitter";
+      flake = false;
+    };
+
+    nvim-treesitter-textobjects = {
+      url = "github:nvim-treesitter/nvim-treesitter-textobjects";
+      flake = false;
+    };
+    lspsaga = {
+      url = "github:tami5/lspsaga.nvim";
+      flake = false;
+    };
+
+    lspkind = {
+      url = "github:onsails/lspkind-nvim";
+      flake = false;
+    };
+
+    trouble = {
+      url = "github:folke/trouble.nvim";
+      flake = false;
+    };
+
+    nvim-treesitter-context = {
+      url = "github:nvim-treesitter/nvim-treesitter-context";
+      flake = false;
+    };
+
+    nvim-lightbulb = {
+      url = "github:kosayoda/nvim-lightbulb";
+      flake = false;
+    };
+
+    nvim-code-action-menu = {
+      url = "github:weilbith/nvim-code-action-menu";
+      flake = false;
+    };
+
+    lsp-signature = {
+      url = "github:ray-x/lsp_signature.nvim";
+      flake = false;
+    };
+
+    null-ls = {
+      url = "github:jose-elias-alvarez/null-ls.nvim";
+      flake = false;
+    };
+
+    sqls-nvim = {
+      url = "github:nanotee/sqls.nvim";
+      flake = false;
+    };
+
+    rust-tools = {
+      url = "github:simrat39/rust-tools.nvim";
+      flake = false;
+    };
+
+    nvim-metals = {
+      url = "github:scalameta/nvim-metals";
+      flake = false;
+    };
+
+    # Folds
+    nvim-ufo = {
+      url = "github:kevinhwang91/nvim-ufo";
+      flake = false;
+    };
+
+    promise-async = {
+      url = "github:kevinhwang91/promise-async"; # required by nvim-ufo
+      flake = false;
+    };
 
     # Telescope
-    plugin-telescope.url = "github:nvim-telescope/telescope.nvim";
-    plugin-telescope.flake = false;
+    telescope = {
+      url = "github:nvim-telescope/telescope.nvim";
+      flake = false;
+    };
 
-    plugin-telescope-file-browser.url = "github:nvim-telescope/telescope-file-browser.nvim";
-    plugin-telescope-file-browser.flake = false;
+    telescope-media-files = {
+      url = "github:nvim-telescope/telescope-media-files.nvim";
+      flake = false;
+    };
 
-    plugin-telescope-live-grep-args.url = "github:nvim-telescope/telescope-live-grep-args.nvim";
-
-    plugin-telescope-live-grep-args.flake = false;
+    telescope-tabs = {
+      url = "github:FabianWirth/search.nvim";
+      flake = false;
+    };
 
     # Filetrees
-    plugin-nvim-tree-lua.url = "github:kyazdani42/nvim-tree.lua";
-    plugin-nvim-tree-lua.flake = false;
+    nvim-tree-lua = {
+      #url = github:nvim-tree/nvim-tree.lua;
+      url = "github:ghostbuster91/nvim-tree.lua/expand_until";
+      flake = false;
+    };
 
     # Tablines
-    plugin-nvim-bufferline-lua.url = "github:akinsho/nvim-bufferline.lua?ref=v4.3.0";
-    plugin-nvim-bufferline-lua.flake = false;
+    nvim-bufferline = {
+      url = "github:akinsho/bufferline.nvim";
+      flake = false;
+    };
 
     # Statuslines
-    plugin-lualine.url = "github:hoob3rt/lualine.nvim";
-    plugin-lualine.flake = false;
+    lualine = {
+      url = "github:hoob3rt/lualine.nvim";
+      flake = false;
+    };
 
     # Autocompletes
-    plugin-nvim-cmp.url = "github:hrsh7th/nvim-cmp";
-    plugin-nvim-cmp.flake = false;
+    nvim-cmp = {
+      url = "github:hrsh7th/nvim-cmp";
+      flake = false;
+    };
 
-    plugin-vim-vsnip.flake = false;
+    cmp-buffer = {
+      url = "github:hrsh7th/cmp-buffer";
+      flake = false;
+    };
+
+    cmp-nvim-lsp = {
+      url = "github:hrsh7th/cmp-nvim-lsp";
+      flake = false;
+    };
+
+    cmp-vsnip = {
+      url = "github:hrsh7th/cmp-vsnip";
+      flake = false;
+     };
+
+    cmp-path = {
+      url = "github:hrsh7th/cmp-path";
+      flake = false;
+    };
+
+    cmp-treesitter = {
+      url = "github:ray-x/cmp-treesitter";
+      flake = false;
+    };
+
+    # Snippets
+    vim-vsnip = {
+      url = "github:hrsh7th/vim-vsnip";
+      flake = false;
+    };
 
     # Autopairs
-    plugin-nvim-autopairs.url = "github:windwp/nvim-autopairs";
-    plugin-nvim-autopairs.flake = false;
+    nvim-autopairs = {
+      url = "github:windwp/nvim-autopairs";
+      flake = false;
+    };
 
-    plugin-nvim-ts-autotag.url = "github:windwp/nvim-ts-autotag";
-    plugin-nvim-ts-autotag.flake = false;
-
-    # ChatGPT.nvim
-    plugin-chatgpt-nvim.url = "github:jackMort/ChatGPT.nvim";
-    plugin-chatgpt-nvim.flake = false;
+    nvim-ts-autotag = {
+      url = "github:windwp/nvim-ts-autotag";
+      flake = false;
+    };
 
     # Commenting
-    plugin-kommentary.url = "github:b3nj5m1n/kommentary";
-    plugin-kommentary.flake = false;
+    kommentary = {
+      url = "github:b3nj5m1n/kommentary";
+      flake = false;
+    };
 
-    plugin-todo-comments.url = "github:folke/todo-comments.nvim";
-    plugin-todo-comments.flake = false;
+    todo-comments = {
+      url = "github:folke/todo-comments.nvim";
+      flake = false;
+    };
 
     # Buffer tools
-    plugin-bufdelete-nvim.url = "github:famiu/bufdelete.nvim";
-    plugin-bufdelete-nvim.flake = false;
+    bufdelete-nvim = {
+      url = "github:famiu/bufdelete.nvim";
+      flake = false;
+    };
+
+    hop = {
+      url = "github:phaazon/hop.nvim";
+      flake = false;
+    };
 
     # Themes
-    plugin-tokyonight.url = "github:folke/tokyonight.nvim";
-    plugin-tokyonight.flake = false;
+    catppuccin = {
+      url = "github:catppuccin/nvim";
+      flake = false;
+    };
 
-    plugin-onedark.url = "github:navarasu/onedark.nvim";
-    plugin-onedark.flake = false;
+    nightfox = {
+      url = "github:EdenEast/nightfox.nvim";
+      flake = false;
+    };
 
-    plugin-catppuccin.url = "github:catppuccin/nvim";
-    plugin-catppuccin.flake = false;
+    onedark = {
+      url = "github:navarasu/onedark.nvim";
+      flake = false;
+    };
 
-    plugin-dracula-nvim.url = "github:Mofiqul/dracula.nvim";
-    plugin-dracula-nvim.flake = false;
+    rosepine = {
+      url = "github:rose-pine/neovim";
+      flake = false;
+    };
 
-
-    plugin-dracula.url = "github:dracula/vim";
-    plugin-dracula.flake = false;
-
-    plugin-gruvbox.url = "github:ellisonleao/gruvbox.nvim";
-    plugin-gruvbox.flake = false;
+    tokyonight = {
+      url = "github:folke/tokyonight.nvim";
+      flake = false;
+    };
 
     # Rust crates
-    plugin-crates-nvim.url = "github:Saecki/crates.nvim";
-    plugin-crates-nvim.flake = false;
+    crates-nvim = {
+      url = "github:Saecki/crates.nvim";
+      flake = false;
+    };
 
     # Visuals
-    plugin-nvim-cursorline.url = "github:yamatsum/nvim-cursorline";
-    plugin-nvim-cursorline.flake = false;
+    nvim-cursorline = {
+      url = "github:yamatsum/nvim-cursorline";
+      flake = false;
+    };
 
-    plugin-indent-blankline.url = "github:lukas-reineke/indent-blankline.nvim";
-    plugin-indent-blankline.flake = false;
+    indent-blankline = {
+      url = "github:lukas-reineke/indent-blankline.nvim";
+      flake = false;
+    };
 
-    # nui - UI Component Library for Neovim - required by ChatGPT.nvim
-    plugin-nui-nvim.url = "github:MunifTanjim/nui.nvim";
-    plugin-nui-nvim.flake = false;
+    modes-nvim = {
+      url = "github:mvllow/modes.nvim";
+      flake = false;
+    };
 
-    plugin-nvim-web-devicons.url = "github:kyazdani42/nvim-web-devicons";
-    plugin-nvim-web-devicons.flake = false;
+    nvim-web-devicons = {
+      url = "github:kyazdani42/nvim-web-devicons";
+      flake = false;
+    };
 
+    noice = {
+      url = "github:folke/noice.nvim";
+      flake = false;
+    };
 
-    plugin-gitsigns-nvim.url = "github:lewis6991/gitsigns.nvim";
-    plugin-gitsigns-nvim.flake = false;
+    # noice dependency
+    nui-nvim = {
+      url = "github:MunifTanjim/nui.nvim";
+      flake = false;
+    };
+
+    # Dashboard
+    snacks = {
+      url = "github:folke/snacks.nvim";
+      flake = false;
+    };
+
+    # Git
+    vim-fugitive = {
+      url = "github:tpope/vim-fugitive";
+      flake = false;
+    };
+
+    gitsigns-nvim = {
+      url = "github:lewis6991/gitsigns.nvim";
+      flake = false;
+    };
+
+    diffview = {
+      url = "github:sindrets/diffview.nvim";
+      flake = false;
+    };
+
+    neogit = {
+      url = "github:NeogitOrg/neogit";
+      flake = false;
+    };
+
+    # Fx
+    cellular-automaton = {
+      url = "github:Eandrju/cellular-automaton.nvim";
+      flake = false;
+    };
 
     # Key binding help
-    plugin-which-key.url = "github:folke/which-key.nvim";
-    plugin-which-key.flake = false;
+    which-key = {
+      url = "github:folke/which-key.nvim";
+      flake = false;
+    };
 
     # Markdown
-    plugin-glow-nvim.url = "github:ellisonleao/glow.nvim";
-    plugin-glow-nvim.flake = false;
+    glow-nvim = {
+      url = "github:ellisonleao/glow.nvim";
+      flake = false;
+    };
 
+    render-markdown-nvim = {
+      url = "github:MeanderingProgrammer/render-markdown.nvim";
+      flake = false;
+    };
 
-    # SCNvim
-    plugin-scnvim.url = "github:davidgranstrom/scnvim";
-    plugin-scnvim.flake = false;
+    # Organized notes in trees
+    mind-nvim = {
+      url = "github:gvolpe/mind.nvim";
+      #url = github:phaazon/mind.nvim;
+      flake = false;
+    };
 
-    # Plenary (required by crates-nvim)
-    plugin-plenary-nvim.url = "github:nvim-lua/plenary.nvim";
-    plugin-plenary-nvim.flake = false;
+    # Plant UML syntax highlights
+    vim-plantuml = {
+      url = "github:aklt/plantuml-syntax";
+      flake = false;
+    };
 
-    plugin-open-browser.url = "github:tyru/open-browser.vim";
-    plugin-open-browser.flake = false;
+    # HURL syntax highlights
+    hurl-nvim = {
+      url = "github:samueljoli/hurl.nvim";
+      flake = false;
+    };
 
-    plugin-plantuml-syntax.url = "github:aklt/plantuml-syntax";
-    plugin-plantuml-syntax.flake = false;
+    # Enhanced incr/decr functionality
+    dial-nvim = {
+      url = "github:monaqa/dial.nvim";
+      flake = false;
+    };
 
-    plugin-plantuml-previewer.url = "github:weirongxu/plantuml-previewer.vim";
-    plugin-plantuml-previewer.flake = false;
+    # Dependencies of other plugins
+    plenary-nvim = {
+      url = "github:nvim-lua/plenary.nvim";
+      flake = false;
+    };
 
-    # misc
-    plugin-vim-be-good.url = "github:ThePrimeagen/vim-be-good";
-    plugin-vim-be-good.flake = false;
+    nvim-nui = {
+      url = "github:MunifTanjim/nui.nvim";
+      flake = false;
+    };
   };
 
-  outputs =
-    { nixpkgs
-    , flake-utils
-    , ...
-    } @ inputs:
-    let
-      rawPlugins = nvimLib.plugins.fromInputs inputs "plugin-";
+    # see :help nixCats.flake.inputs
+    # If you want your plugin to be loaded by the standard overlay,
+    # i.e. if it wasnt on nixpkgs, but doesnt have an extra build step.
+    # Then you should name it "plugins-something"
+    # If you wish to define a custom build step not handled by nixpkgs,
+    # then you should name it in a different format, and deal with that in the
+    # overlay defined for custom builds in the overlays directory.
+    # for specific tags, branches and commits, see:
+    # https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#examples
 
-      neovimConfiguration = { modules ? [ ], ... } @ args:
-        import ./modules
-          (args // { modules = [{ config.build.rawPlugins = rawPlugins; }] ++ modules; });
 
-      nvimBin = pkg: "${pkg}/bin/nvim";
+  # see :help nixCats.flake.outputs
+  outputs = { self, nixpkgs, nixCats, ... }@inputs: let
+    inherit (nixCats) utils;
+    luaPath = "${./.}";
+    forEachSystem = utils.eachSystem nixpkgs.lib.platforms.all;
+    # the following extra_pkg_config contains any values
+    # which you want to pass to the config set of nixpkgs
+    # import nixpkgs { config = extra_pkg_config; inherit system; }
+    # will not apply to module imports
+    # as that will have your system values
+    extra_pkg_config = {
+      # allowUnfree = true;
+    };
+    # management of the system variable is one of the harder parts of using flakes.
 
-      buildPkg = pkgs: modules: (neovimConfiguration {
-        inherit pkgs modules;
-      });
+    # so I have done it here in an interesting way to keep it out of the way.
+    # It gets resolved within the builder itself, and then passed to your
+    # categoryDefinitions and packageDefinitions.
 
-      nvimLib = (import ./modules/lib/stdlib-extended.nix nixpkgs.lib).nvim;
+    # this allows you to use ${pkgs.system} whenever you want in those sections
+    # without fear.
 
-      tidalConfig = {
-        config.vim.languages.tidal.enable = true;
-      };
+    dependencyOverlays = /* (import ./overlays inputs) ++ */ [
+      # This overlay grabs all the inputs named in the format
+      # `plugins-<pluginName>`
+      # Once we add this overlay to our nixpkgs, we are able to
+      # use `pkgs.neovimPlugins`, which is a set of our plugins.
+      (utils.standardPluginOverlay inputs)
+      # add any other flake overlays here.
 
-      mainConfig = isMaximal:
-        let
-          overrideable = nixpkgs.lib.mkOverride 1200; # between mkOptionDefault and mkDefault
-        in
+      # when other people mess up their overlays by wrapping them with system,
+      # you may instead call this function on their overlay.
+      # it will check if it has the system in the set, and if so return the desired overlay
+      # (utils.fixSystemizedOverlay inputs.codeium.overlays
+      #   (system: inputs.codeium.overlays.${system}.default)
+      # )
+    ];
 
-          {
-          config = {
-            build.viAlias = overrideable false;
-            build.vimAlias = overrideable true;
-            vim.languages = {
-              enableLSP = overrideable true;
-              enableFormat = overrideable true;
-              enableTreesitter = overrideable true;
+    # see :help nixCats.flake.outputs.categories
+    # and
+    # :help nixCats.flake.outputs.categoryDefinitions.scheme
+    categoryDefinitions = { pkgs, settings, categories, extra, name, mkPlugin, ... }@packageDef: {
+      # to define and use a new category, simply add a new list to a set here, 
+      # and later, you will include categoryname = true; in the set you
+      # provide when you build the package using this builder function.
+      # see :help nixCats.flake.outputs.packageDefinitions for info on that section.
 
-              enableExtraDiagnostics = overrideable true;
-              enableDebugger = overrideable true;
-
-              nix.enable = overrideable true;
-              markdown.enable = overrideable true;
-              html.enable = overrideable isMaximal;
-              clang.enable = overrideable isMaximal;
-              sql.enable = overrideable isMaximal;
-              rust = {
-                enable = overrideable isMaximal;
-                crates.enable = overrideable true;
-              };
-              ts.enable = overrideable isMaximal;
-              go.enable = overrideable isMaximal;
-              bash.enable = overrideable isMaximal;
-
-              # See tidal config
-              tidal.enable = overrideable false;
-            };
-            vim.lsp = {
-              formatOnSave = overrideable true;
-              lspkind.enable = overrideable true;
-              lightbulb.enable = overrideable true;
-              lspsaga.enable = overrideable false;
-              nvimCodeActionMenu.enable = overrideable true;
-              trouble.enable = overrideable true;
-              lspSignature.enable = overrideable true;
-            };
-            vim.visuals = {
-              enable = overrideable true;
-              nvimWebDevicons.enable = overrideable true;
-              indentBlankline = {
-                enable = overrideable true;
-                fillChar = overrideable null;
-                eolChar = overrideable null;
-                showCurrContext = overrideable true;
-              };
-              cursorWordline = {
-                enable = overrideable true;
-                lineTimeout = overrideable 0;
-              };
-            };
-            vim.statusline.lualine.enable = overrideable true;
-            vim.theme.enable = true;
-            vim.autopairs.enable = overrideable true;
-            vim.autocomplete = {
-              enable = overrideable true;
-              type = overrideable "nvim-cmp";
-            };
-            vim.debugger.ui.enable = overrideable true;
-            vim.filetree.nvimTreeLua.enable = overrideable true;
-            vim.tabline.nvimBufferline.enable = overrideable true;
-            vim.treesitter.context.enable = overrideable true;
-            vim.keys = {
-              enable = overrideable true;
-              whichKey.enable = overrideable true;
-            };
-            vim.telescope = {
-              enable = overrideable true;
-              fileBrowser.enable = overrideable true;
-              liveGrepArgs.enable = overrideable true;
-            };
-            vim.git = {
-              enable = overrideable true;
-              gitsigns.enable = overrideable true;
-              gitsigns.codeActions = overrideable true;
-            };
-          };
-        };
-
-      nixConfig = mainConfig false;
-      maximalConfig = mainConfig true;
-    in
-    {
-      lib = {
-        nvim = nvimLib;
-        inherit neovimConfiguration;
-      };
-
-      overlays.default = final: prev: {
-        inherit neovimConfiguration;
-        neovim-nix = buildPkg prev [ nixConfig ];
-        neovim-maximal = buildPkg prev [ maximalConfig ];
-        neovim-tidal = buildPkg prev [ tidalConfig ];
-      };
-    }
-    // (flake-utils.lib.eachDefaultSystem (system:
-    let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [
-          inputs.tidalcycles.overlays.default
-          (final: prev: {
-            rnix-lsp = inputs.rnix-lsp.defaultPackage.${system};
-            nil = inputs.nil.packages.${system}.default;
-          })
+      # lspsAndRuntimeDeps:
+      # this section is for dependencies that should be available
+      # at RUN TIME for plugins. Will be available to PATH within neovim terminal
+      # this includes LSPs
+      lspsAndRuntimeDeps = with pkgs; {
+        general = [
+          universal-ctags
+          curl
+          # NOTE:
+          # lazygit
+          # Apparently lazygit when launched via snacks cant create its own config file
+          # but we can add one from nix!
+          (pkgs.writeShellScriptBin "lazygit" ''
+            exec ${pkgs.lazygit}/bin/lazygit --use-config-file ${pkgs.writeText "lazygit_config.yml" ""} "$@"
+          '')
+          ripgrep
+          fd
+          stdenv.cc.cc
+          lua-language-server
+          nil # I would go for nixd but lazy chooses this one idk
+          stylua
         ];
       };
 
+      # NOTE: lazy doesnt care if these are in startupPlugins or optionalPlugins
+      # also you dont have to download everything via nix if you dont want.
+      # but you have the option, and that is demonstrated here.
+      startupPlugins = with pkgs.vimPlugins; {
+        general = [
+          # LazyVim
+          lazy-nvim
+          LazyVim
+          bufferline-nvim
+          mini-nvim
+          mini-surround
+          mini-comment
+          dial-nvim
+          hurl-nvim
+          vim-fugitive
+          gitsigns-nvim
+          # diffview
+          neogit
+          # hop
+          nvim-tree-lua
+          # nvim-bufferline
+          # lualine
+          nvim-cmp
+          cmp-buffer
+          cmp-nvim-lsp
+          cmp-vsnip
+          cmp-path
+          cmp-treesitter
+          vim-vsnip
+          nvim-autopairs
+          nvim-ts-autotag
+          kommentary
+          # todo-comments
+          bufdelete-nvim
+          lazydev-nvim
+          conform-nvim
+          flash-nvim
+          friendly-snippets
+          gitsigns-nvim
+          grug-far-nvim
+          noice-nvim
+          lualine-nvim
+          nui-nvim
+          nvim-lint
+          nvim-lspconfig
+          nvim-treesitter-textobjects
+          nvim-ts-autotag
+          ts-comments-nvim
+          blink-cmp
+          nvim-web-devicons
+          persistence-nvim
+          plenary-nvim
+          telescope-fzf-native-nvim
+          telescope-nvim
+          todo-comments-nvim
+          tokyonight-nvim
+          trouble-nvim
+          vim-illuminate
+          vim-startuptime
+          which-key-nvim
+          snacks-nvim
+          nvim-treesitter-textobjects
+          nvim-treesitter.withAllGrammars
+          # This is for if you only want some of the grammars
+          # (nvim-treesitter.withPlugins (
+          #   plugins: with plugins; [
+          #     nix
+          #     lua
+          #   ]
+          # ))
 
-      tidalPkg = buildPkg pkgs [ tidalConfig ];
-      nixPkg = buildPkg pkgs [ nixConfig ];
-      maximalPkg = buildPkg pkgs [ maximalConfig ];
-
-      devPkg = nixPkg.extendConfiguration {
-        modules = [
-          {
-            vim.syntaxHighlighting = false;
-            vim.languages.nix.format.type = "nixpkgs-fmt";
-            vim.languages.bash.enable = true;
-            vim.languages.html.enable = true;
-            vim.filetree.nvimTreeLua.enable = false;
-          }
+          # sometimes you have to fix some names
+          { plugin = catppuccin-nvim; name = "catppuccin"; }
+          { plugin = mini-ai; name = "mini.ai"; }
+          { plugin = mini-icons; name = "mini.icons"; }
+          { plugin = mini-pairs; name = "mini.pairs"; }
+          # you could do this within the lazy spec instead if you wanted
+          # and get the new names from `:NixCats pawsible` debug command
         ];
       };
-    in
-    {
-      apps =
-        rec {
-          nix = {
-            type = "app";
-            program = nvimBin nixPkg;
-          };
-          maximal = {
-            type = "app";
-            program = nvimBin maximalPkg;
-          };
-          default = nix;
-        }
-        // pkgs.lib.optionalAttrs (!(builtins.elem system [ "aarch64-darwin" "x86_64-darwin" ])) {
-          tidal = {
-            type = "app";
-            program = nvimBin tidalPkg;
-          };
-        };
 
-      devShells.default = pkgs.mkShell { nativeBuildInputs = [ devPkg ]; };
+      # not loaded automatically at startup.
+      # use with packadd and an autocommand in config to achieve lazy loading
+      # NOTE: this template is using lazy.nvim so, which list you put them in is irrelevant.
+      # startupPlugins or optionalPlugins, it doesnt matter, lazy.nvim does the loading.
+      # I just put them all in startupPlugins. I could have put them all in here instead.
+      optionalPlugins = {};
 
-      packages =
-        {
-          default = nixPkg;
-          nix = nixPkg;
-          maximal = maximalPkg;
-          develop = devPkg;
-        }
-        // pkgs.lib.optionalAttrs (!(builtins.elem system [ "aarch64-darwin" "x86_64-darwin" ])) {
-          tidal = tidalPkg;
+      # shared libraries to be added to LD_LIBRARY_PATH
+      # variable available to nvim runtime
+      sharedLibraries = {
+        general = with pkgs; [
+          # libgit2
+        ];
+      };
+
+      # environmentVariables:
+      # this section is for environmentVariables that should be available
+      # at RUN TIME for plugins. Will be available to path within neovim terminal
+      environmentVariables = {
+        test = {
+          CATTESTVAR = "It worked!";
         };
-    }));
+      };
+
+      # If you know what these are, you can provide custom ones by category here.
+      # If you dont, check this link out:
+      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/setup-hooks/make-wrapper.sh
+      extraWrapperArgs = {
+        test = [
+          '' --set CATTESTVAR2 "It worked again!"''
+        ];
+      };
+
+      # lists of the functions you would have passed to
+      # python.withPackages or lua.withPackages
+
+      # get the path to this python environment
+      # in your lua config via
+      # vim.g.python3_host_prog
+      # or run from nvim terminal via :!<packagename>-python3
+      python3.libraries = {
+        test = [ (_:[]) ];
+      };
+      # populates $LUA_PATH and $LUA_CPATH
+      extraLuaPackages = {
+        test = [ (_:[]) ];
+      };
+    };
+
+
+
+    # And then build a package with specific categories from above here:
+    # All categories you wish to include must be marked true,
+    # but false may be omitted.
+    # This entire set is also passed to nixCats for querying within the lua.
+
+    # see :help nixCats.flake.outputs.packageDefinitions
+    packageDefinitions = {
+      # These are the names of your packages
+      # you can include as many as you wish.
+      nvim = { pkgs, name, mkPlugin, ... }: {
+        # they contain a settings set defined above
+        # see :help nixCats.flake.outputs.settings
+        settings = {
+          suffix-path = true;
+          suffix-LD = true;
+          wrapRc = true;
+          # IMPORTANT:
+          # your alias may not conflict with your other packages.
+          # aliases = [ "vim" ];
+          # neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
+          hosts.python3.enable = true;
+          hosts.node.enable = true;
+        };
+        # and a set of categories that you want
+        # (and other information to pass to lua)
+        categories = {
+          general = true;
+          test = false;
+        };
+        extra = {};
+      };
+      # an extra test package with normal lua reload for fast edits
+      # nix doesnt provide the config in this package, allowing you free reign to edit it.
+      # then you can swap back to the normal pure package when done.
+      testnvim = { pkgs, mkPlugin, ... }: {
+        settings = {
+          suffix-path = true;
+          suffix-LD = true;
+          wrapRc = false;
+          unwrappedCfgPath = utils.mkLuaInline "os.getenv('HOME') .. '/some/path/to/your/config'";
+        };
+        categories = {
+          general = true;
+          test = false;
+        };
+        extra = {};
+      };
+    };
+  # In this section, the main thing you will need to do is change the default package name
+  # to the name of the packageDefinitions entry you wish to use as the default.
+    defaultPackageName = "nvim";
+  in
+
+
+  # see :help nixCats.flake.outputs.exports
+  forEachSystem (system: let
+    # the builder function that makes it all work
+    nixCatsBuilder = utils.baseBuilder luaPath {
+      inherit nixpkgs system dependencyOverlays extra_pkg_config;
+    } categoryDefinitions packageDefinitions;
+    defaultPackage = nixCatsBuilder defaultPackageName;
+    # this is just for using utils such as pkgs.mkShell
+    # The one used to build neovim is resolved inside the builder
+    # and is passed to our categoryDefinitions and packageDefinitions
+    pkgs = import nixpkgs { inherit system; };
+  in
+  {
+    # these outputs will be wrapped with ${system} by utils.eachSystem
+
+    # this will make a package out of each of the packageDefinitions defined above
+    # and set the default package to the one passed in here.
+    packages = utils.mkAllWithDefault defaultPackage;
+
+    # choose your package for devShell
+    # and add whatever else you want in it.
+    devShells = {
+      default = pkgs.mkShell {
+        name = defaultPackageName;
+        packages = [ defaultPackage ];
+        inputsFrom = [ ];
+        shellHook = ''
+        '';
+      };
+    };
+
+  }) // (let
+    # we also export a nixos module to allow reconfiguration from configuration.nix
+    nixosModule = utils.mkNixosModules {
+      moduleNamespace = [ defaultPackageName ];
+      inherit defaultPackageName dependencyOverlays luaPath
+        categoryDefinitions packageDefinitions extra_pkg_config nixpkgs;
+    };
+    # and the same for home manager
+    homeModule = utils.mkHomeModules {
+      moduleNamespace = [ defaultPackageName ];
+      inherit defaultPackageName dependencyOverlays luaPath
+        categoryDefinitions packageDefinitions extra_pkg_config nixpkgs;
+    };
+  in {
+
+    # these outputs will be NOT wrapped with ${system}
+
+    # this will make an overlay out of each of the packageDefinitions defined above
+    # and set the default overlay to the one named here.
+    overlays = utils.makeOverlays luaPath {
+      inherit nixpkgs dependencyOverlays extra_pkg_config;
+    } categoryDefinitions packageDefinitions defaultPackageName;
+
+    nixosModules.default = nixosModule;
+    homeModules.default = homeModule;
+
+    inherit utils nixosModule homeModule;
+    inherit (utils) templates;
+  });
 }

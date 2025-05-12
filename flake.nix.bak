@@ -1,0 +1,702 @@
+{
+  description = "Neovim configuration with nixCats-nvim, Haskell, and Rust support";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    
+    # nixCats-nvim for managing Neovim configuration
+    nixCats-nvim = {
+      url = "github:BirdeeHub/nixCats-nvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # Flake utils for system-agnostic outputs
+    flake-utils.url = "github:numtide/flake-utils";
+    
+    # Rust overlay for better Rust toolchain management
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # For Haskell development
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, nixCats-nvim, rust-overlay, neovim-nightly-overlay, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        inherit (nixCats-nvim) utils;
+        overlays = [
+          (import rust-overlay)
+          neovim-nightly-overlay.overlay
+        ];
+        
+        pkgs = import nixpkgs {
+          inherit system overlays;
+          config.allowUnfree = true;
+        };
+        
+        # Configure rust toolchain with LSP support
+        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+          extensions = [ "rust-src" "rust-analyzer" "clippy" "rustfmt" ];
+        };
+        
+        # Define LSP servers and tools for different languages
+        languageServers = with pkgs; [
+          # Haskell
+          haskell-language-server
+          haskellPackages.hoogle
+          
+          # Rust
+          rustToolchain
+          rust-analyzer
+          
+          # General
+          nodePackages.typescript-language-server
+          nodePackages.bash-language-server
+          lua-language-server
+          nil # Nix LSP
+          marksman # Markdown LSP
+        ];
+        
+        # Define debug adapters
+        debugAdapters = with pkgs; [
+
+          # For Rust debugging
+          lldb
+          
+          # For Haskell debugging
+          haskellPackages.haskell-debug-adapter
+        ];
+        
+        # Development tools
+        devTools = with pkgs; [
+          # Haskell tools
+          ghc
+          cabal-install
+          stack
+          haskellPackages.hlint
+          haskellPackages.ormolu
+          
+          # Rust tools
+          cargo-edit
+          cargo-watch
+          cargo-generate
+          
+          # General tools
+          ripgrep
+          fd
+          git
+        ];
+        
+        # For treesitter (syntax highlighting)
+        treesitterParsers = with pkgs.tree-sitter-grammars; [
+          tree-sitter-nix
+          tree-sitter-rust
+          tree-sitter-haskell
+          tree-sitter-lua
+          tree-sitter-markdown
+          tree-sitter-typescript
+          tree-sitter-json
+          tree-sitter-bash
+        
+        ];
+
+        # Define plugins by category using nixCats-nvim structure
+        basicPlugins = with pkgs.vimPlugins; [
+          # Basics
+          plenary-nvim        # Required by many plugins
+          nvim-web-devicons   # Icons
+          which-key-nvim      # Key binding help
+          telescope-nvim      # Fuzzy finder
+          nvim-treesitter.withAllGrammars
+          
+          # UI Enhancements
+          lualine-nvim        # Status line
+          bufferline-nvim     # Buffer line
+          indent-blankline-nvim # Indentation guides
+          tokyonight-nvim     # Theme
+          
+          # Git
+          vim-fugitive
+          gitsigns-nvim
+        ];
+        
+        
+        lspPlugins = with pkgs.vimPlugins; [
+          nvim-lspconfig      # LSP configuration
+          fidget-nvim         # LSP progress UI
+          neodev-nvim         # For Lua development
+          trouble-nvim        # LSP diagnostics view
+          nvim-navic          # Code context display
+          lsp-zero-nvim       # Simplifies LSP setup
+          
+          # Autocompletion
+          nvim-cmp
+          cmp-nvim-lsp
+          cmp-buffer
+          cmp-path
+          cmp-cmdline
+          cmp-nvim-lua
+          luasnip
+        
+          cmp_luasnip
+          friendly-snippets
+        ];
+        
+        rusticPlugins = with pkgs.vimPlugins; [
+          rust-tools-nvim
+          crates-nvim         # Cargo.toml integration
+        ];
+        
+        haskellPlugins = with pkgs.vimPlugins; [
+          haskell-tools-nvim
+        ];
+        
+        debugPlugins = with pkgs.vimPlugins; [
+          nvim-dap            # Debug Adapter Protocol
+          nvim-dap-ui         # UI for DAP
+          nvim-dap-virtual-text # Virtual text for DAP
+        ];
+
+        # Get nixCats builder for this system
+        nixCatsNeovimBuilder = utils.baseBuilder;
+        
+        # Create a flake output with nixCats configurations
+        myNeovimFlake = nixCatsNeovimBuilder {
+          inherit pkgs;
+          
+          # Configure basic plugin profiles
+          pluginProfiles = {
+            # Define basic profile
+
+            basic = {
+              plugins = basicPlugins;
+              
+              # Base neovim configuration
+              sharedConfig = ''
+                -- Base vim options
+                vim.opt.number = true
+                vim.opt.relativenumber = true
+                vim.opt.tabstop = 2
+                vim.opt.shiftwidth = 2
+                vim.opt.expandtab = true
+                vim.opt.smartindent = true
+                vim.opt.wrap = false
+                vim.opt.hlsearch = false
+                vim.opt.termguicolors = true
+                vim.opt.scrolloff = 8
+                vim.opt.updatetime = 50
+
+
+                -- Set leader key
+                vim.g.mapleader = " "
+                vim.g.maplocalleader = " "
+                
+                -- Load colorscheme
+                vim.cmd("colorscheme tokyonight-night")
+                
+                -- Basic keymaps
+                vim.keymap.set("n", "<leader>pv", vim.cmd.Ex, { desc = "Open file explorer" })
+                vim.keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
+                vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
+                
+                -- Configure telescope for fuzzy finding
+                require('telescope').setup()
+                vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
+                vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
+                vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
+                vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+                
+                -- Status line configuration
+                require('lualine').setup({
+                  options = {
+                    theme = 'tokyonight'
+                  }
+                })
+                
+                -- Git signs configuration
+                require('gitsigns').setup()
+                
+                -- Which-key configuration for keybinding help
+                require('which-key').setup()
+                
+                -- Setup bufferline
+                require('bufferline').setup()
+                
+                -- Setup indent guides
+                require('indent_blankline').setup()
+              '';
+            };
+            
+            # Define LSP profile
+            lsp = {
+              plugins = lspPlugins;
+              additionalDependencies = languageServers;
+              
+              sharedConfig = ''
+                -- LSP Zero setup
+                local lsp_zero = require('lsp-zero')
+                lsp_zero.extend_lspconfig()
+                
+                -- Configure LSP keybindings
+                local on_attach = function(client, bufnr)
+                  -- Enable completion triggered by <c-x><c-o>
+                  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+                  
+                  -- Common LSP keymaps
+                  local bufopts = { noremap=true, silent=true, buffer=bufnr }
+                  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+                  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+                  vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+                  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+                  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+                  vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
+                  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+                  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+                  vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+                  vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
+                  
+                  -- Setup navic (code context display) if supported
+                  if client.server_capabilities.documentSymbolProvider then
+                    require('nvim-navic').attach(client, bufnr)
+                  end
+                end
+                
+                -- Configure LSP servers
+                local lspconfig = require('lspconfig')
+                
+                -- Nix
+                lspconfig.nil_ls.setup({
+                  on_attach = on_attach,
+                })
+                
+                -- TypeScript
+                lspconfig.tsserver.setup({
+                  on_attach = on_attach,
+                })
+                
+                -- Lua
+                lspconfig.lua_ls.setup({
+                  on_attach = on_attach,
+                  settings = {
+                    Lua = {
+                      diagnostics = {
+                        globals = { 'vim' }
+                      }
+                    }
+                  }
+                })
+                
+                -- Bash
+                lspconfig.bashls.setup({
+                  on_attach = on_attach,
+                })
+                
+                -- Markdown
+                lspconfig.marksman.setup({
+                  on_attach = on_attach,
+                })
+                
+                -- Set up nvim-cmp for autocompletion
+                local cmp = require('cmp')
+                local luasnip = require('luasnip')
+                require('luasnip.loaders.from_vscode').lazy_load()
+                
+                cmp.setup({
+                  snippet = {
+                    expand = function(args)
+                      luasnip.lsp_expand(args.body)
+                    end,
+                  },
+                  mapping = cmp.mapping.preset.insert({
+                    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+                    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+                    ['<C-Space>'] = cmp.mapping.complete(),
+                    ['<C-e>'] = cmp.mapping.abort(),
+
+['<CR>'] = cmp.mapping.confirm({ select = true }),
+                    ['<Tab>'] = cmp.mapping(function(fallback)
+                      if cmp.visible() then
+                        cmp.select_next_item()
+                      elseif luasnip.expand_or_jumpable() then
+                        luasnip.expand_or_jump()
+                      else
+                        fallback()
+                      end
+                    end, { 'i', 's' }),
+                    ['<S-Tab>'] = cmp.mapping(function(fallback)
+                      if cmp.visible() then
+                        cmp.select_prev_item()
+
+elseif luasnip.jumpable(-1) then
+                        luasnip.jump(-1)
+                      else
+                        fallback()
+                      end
+                    end, { 'i', 's' }),
+                  }),
+                  sources = cmp.config.sources({
+                    { name = 'nvim_lsp' },
+                    { name = 'luasnip' },
+                    { name = 'buffer' },
+                    { name = 'path' },
+                  })
+                })
+                
+                -- Set up trouble for diagnostics
+                require('trouble').setup()
+                vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { desc = "Toggle Trouble" })
+                vim.keymap.set("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { desc = "Workspace Diagnostics" })
+                vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { desc = "Document Diagnostics" })
+              '';
+            };
+            
+            # Define Rust profile
+            rust = {
+              plugins = rusticPlugins;
+              additionalDependencies = with pkgs; [ rustToolchain cargo-edit cargo-watch ];
+              
+              sharedConfig = ''
+                -- Configure rust-tools
+                local rt = require("rust-tools")
+                rt.setup({
+
+server = {
+                    on_attach = function(client, bufnr)
+                      -- Enable completion triggered by <c-x><c-o>
+                      vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+                      
+                      -- Common LSP keymaps
+                      local bufopts = { noremap=true, silent=true, buffer=bufnr }
+                      vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+                      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+                      vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+                      vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+                      vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+                      vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
+                      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+                      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+                      vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+                      vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
+                      
+                      -- Rust-specific keymaps
+                      vim.keymap.set("n", "<leader>rh", rt.hover_actions.hover_actions, { buffer = bufnr, desc = "Rust Hover Actions" })
+                      vim.keymap.set("n", "<leader>ra", rt.code_action_group.code_action_group, { buffer = bufnr, desc = "Rust Code Actions" })
+                      vim.keymap.set("n", "<leader>rr", "<cmd>RustRunnables<CR>", { buffer = bufnr, desc = "Rust Runnables" })
+                    end,
+                  },
+                  tools = {
+                    hover_actions = {
+                      auto_focus = true,
+                    },
+                  },
+                })
+                
+                -- Configure crates.nvim for Cargo.toml management
+                require('crates').setup({
+                  popup = {
+                    autofocus = true,
+                  },
+                })
+                
+                -- Auto-attach crates.nvim to Cargo.toml
+                vim.api.nvim_create_autocmd("BufRead", {
+                  group = vim.api.nvim_create_augroup("CmpSourceCargo", { clear = true }),
+                  pattern = "Cargo.toml",
+                  callback = function()
+                    local cmp = require('cmp')
+                    cmp.setup.buffer({ sources = { { name = "crates" } } })
+                  end,
+                })
+              '';
+            };
+            
+            # Define Haskell profile
+            haskell = {
+              plugins = haskellPlugins;
+              additionalDependencies = with pkgs; [ 
+                haskell-language-server
+                ghc
+                cabal-install
+                haskellPackages.hoogle
+                haskellPackages.hlint
+                haskellPackages.ormolu
+              ];
+              
+              sharedConfig = ''
+                -- Configure haskell-tools.nvim
+                local ht = require('haskell-tools')
+                local def_opts = { noremap = true, silent = true }
+                
+                ht.setup {
+                  hls = {
+                    on_attach = function(client, bufnr)
+                      -- Common LSP keymaps
+                      local bufopts = { noremap=true, silent=true, buffer=bufnr }
+                      vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+                      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+                      vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+                      vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+                      vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+                      vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, bufopts)
+                      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+                      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+                      vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+                      vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, bufopts)
+                      
+                      -- Haskell-specific keymaps
+                      vim.keymap.set('n', '<leader>hs', ht.hoogle.hoogle_signature, bufopts)
+                      vim.keymap.set('n', '<leader>ea', ht.lsp.buf_eval_all, bufopts)
+                      vim.keymap.set('n', '<leader>el', function() ht.lsp.eval_line() end, bufopts)
+                      vim.keymap.set('n', '<leader>er', ht.lsp.eval_reload, bufopts)
+                      
+                      -- Toggle GHCi REPL for current package
+                      vim.keymap.set('n', '<leader>rr', ht.repl.toggle, bufopts)
+                      
+                      -- Detect file changes and reload
+                      vim.api.nvim_create_autocmd({ 'BufWritePost' }, {
+                        pattern = '*.hs',
+                        callback = function() vim.lsp.buf.format() end,
+                      })
+                    end,
+                    
+                    -- Configure Haskell Language Server
+
+settings = {
+                      haskell = {
+                        formattingProvider = "ormolu",
+                        plugin = {
+                          hlint = { globalOn = true },
+                          eval = { globalOn = true },
+                          importLens = { globalOn = true },
+                          class = { globalOn = true },
+                        }
+                      }
+                    }
+                  },
+                }
+                
+                -- Auto-setup haskell filetype
+                vim.api.nvim_create_autocmd('FileType', {
+                  pattern = { 'haskell' },
+                  callback = function()
+                    -- Configure indentation for Haskell
+                    vim.opt_local.shiftwidth = 2
+                    vim.opt_local.softtabstop = 2
+                    vim.opt_local.expandtab = true
+                  end
+                })
+              '';
+            };
+            
+            # Define debugging profile
+            debug = {
+              plugins = debugPlugins;
+              additionalDependencies = debugAdapters;
+              
+              sharedConfig = ''
+                -- Configure nvim-dap (Debug Adapter Protocol)
+                local dap = require('dap')
+                local dapui = require('dapui')
+                
+                -- Configure DAP UI
+                dapui.setup()
+                
+                -- Open and close UI automatically with DAP
+                dap.listeners.after.event_initialized["dapui_config"] = function()
+                  dapui.open()
+                end
+                dap.listeners.before.event_terminated["dapui_config"] = function()
+                  dapui.close()
+                end
+                dap.listeners.before.event_exited["dapui_config"] = function()
+                  dapui.close()
+                end
+                
+                -- Configure virtual text
+                require("nvim-dap-virtual-text").setup()
+                
+                -- Keymaps for debugging
+                vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Toggle Breakpoint" })
+                vim.keymap.set("n", "<leader>dc", dap.continue, { desc = "Continue" })
+                vim.keymap.set("n", "<leader>do", dap.step_over, { desc = "Step Over" })
+                vim.keymap.set("n", "<leader>di", dap.step_into, { desc = "Step Into" })
+                vim.keymap.set("n", "<leader>dO", dap.step_out, { desc = "Step Out" })
+                vim.keymap.set("n", "<leader>dt", dap.terminate, { desc = "Terminate" })
+                vim.keymap.set("n", "<leader>du", dapui.toggle, { desc = "Toggle UI" })
+                
+                -- Configure adapter for Rust
+                dap.adapters.lldb = {
+                  type = 'executable',
+                  command = '${pkgs.lldb}/bin/lldb-vscode',
+                  name = 'lldb'
+                }
+                
+                -- Configure Rust debugging
+                dap.configurations.rust = {
+                  {
+                    name = "Launch",
+                    type = "lldb",
+                    request = "launch",
+                    program = function()
+                      local metadata_json = vim.fn.system("cargo metadata --format-version 1 --no-deps")
+                      local metadata = vim.fn.json_decode(metadata_json)
+                      local target_dir = metadata.target_directory
+                      local binary_name = vim.fn.fnamemodify(metadata.packages[1].targets[1].name, ":r")
+                      return target_dir .. "/debug/" .. binary_name
+                    end,
+                    cwd = vim.fn.getcwd(),
+                    stopOnEntry = false,
+                    args = {},
+                  },
+                }
+                
+                -- Configure Haskell debugging
+                dap.adapters.haskell = {
+                  type = 'executable',
+                  command = 'haskell-debug-adapter',
+                  args = {}
+                }
+                
+                dap.configurations.haskell = {
+                  {
+                    type = 'haskell',
+                    request = 'launch',
+                    name = 'Debug',
+                    workspace = vim.fn.getcwd(),
+                    startup = vim.fn.expand('%:p'),  -- Current file path
+                    stopOnEntry = true,
+                    logFile = vim.fn.stdpath('cache') .. '/haskell-debug-adapter.log',
+                    logLevel = 'WARNING',
+                    ghciPrompt = "λ: ",
+                    ghciCmd = "stack ghci --test --no-load --no-build --main-is TARGET --ghci-options -fprint-evld-with-show",
+                  },
+                }
+              '';
+            };
+          };
+          
+          # Define cats (combinations of profiles)
+          cats = {
+            # Default includes everything
+            default = {
+              # Use neovim-nightly
+              viAlias = true;
+              vimAlias = true;
+              
+              # Specify plugins to include
+              pluginProfiles = [
+                "basic"
+                "lsp"
+                "rust"
+                "haskell"
+                "debug"
+              ];
+              
+              # Environment variables if needed
+              environmentVariables = {
+                # Any env vars you want
+              };
+              
+              # Extra runtime dependencies
+              additionalDependencies = with pkgs; [
+                ripgrep
+                fd
+                git
+              ];
+            };
+            
+            # Haskell-focused config
+            haskell = {
+              viAlias = true;
+              vimAlias = true;
+              
+              pluginProfiles = [
+                "basic"
+                "lsp"
+                "haskell"
+                "debug"
+              ];
+              
+              additionalDependencies = with pkgs; [
+                ripgrep
+                fd
+                git
+              ];
+            };
+            
+            # Rust-focused config
+            rust = {
+              viAlias = true;
+              vimAlias = true;
+              
+              pluginProfiles = [
+                "basic"
+                "lsp"
+                "rust"
+                "debug"
+              ];
+              
+              additionalDependencies = with pkgs; [
+                ripgrep
+                fd
+                git
+              ];
+            };
+          };
+        };
+      in {
+        packages = {
+          default = myNeovimFlake.neovimBuilds.default;
+          haskell = myNeovimFlake.neovimBuilds.haskell;
+          rust = myNeovimFlake.neovimBuilds.rust;
+        };
+        
+        apps = {
+          default = {
+            type = "app";
+            program = "${myNeovimFlake.neovimBuilds.default}/bin/nvim";
+          };
+          haskell = {
+            type = "app";
+            program = "${myNeovimFlake.neovimBuilds.haskell}/bin/nvim";
+          };
+          rust = {
+            type = "app";
+            program = "${myNeovimFlake.neovimBuilds.rust}/bin/nvim";
+          };
+        };
+        
+        # Expose built neovim configurations for reuse
+        nixCatsConfigurations = myNeovimFlake;
+        
+        # Development shell with required dependencies
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            # Base development tools
+            git
+            
+            # Dependencies for Neovim configuration
+            luajit
+            
+            # Language tools
+            rustToolchain
+            haskell-language-server
+            ghc
+            
+            # The Neovim build itself
+            myNeovimFlake.neovimBuilds.default
+          ];
+          
+          shellHook = ''
+            echo "Neovim development environment ready!"
+            echo "Run 'nvim' to start Neovim with your configuration."
+          '';
+        };
+      });
+}
