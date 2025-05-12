@@ -14,35 +14,7 @@
 
     # nix lsp support
     nil.url = "github:oxalica/nil";
-    nixd.url = "github:nix-community/nixd";
 
-    # Tree-sitter parsers
-    tree-sitter-haskell = {
-      url = "github:tree-sitter/tree-sitter-haskell";
-      flake = false;
-    };
-
-    tree-sitter-rust = {
-      url = "github:tree-sitter/tree-sitter-rust";
-      flake = false;
-    };
-
-    tree-sitter-typescript = {
-      url = "github:tree-sitter/tree-sitter-typescript";
-      flake= false;
-    };
-
-    tree-sitter-scala = {
-      url = "github:tree-sitter/tree-sitter-scala";
-      flake = false;
-    };
-    
-    tree-sitter-bash = {
-      url = "github:tree-sitter/tree-sitter-bash";
-      flake = false;
-    };
-      
-    # AI plugins
     nvim-chatgpt = {
       url = "github:jackMort/ChatGPT.nvim";
       flake = false;
@@ -513,6 +485,7 @@
           fd
           stdenv.cc.cc
           lua-language-server
+	  haskell-language-server
           nil # I would go for nixd but lazy chooses this one idk
           stylua
         ];
@@ -534,12 +507,12 @@
           hurl-nvim
           vim-fugitive
           gitsigns-nvim
-          # diffview
+          diffview-nvim
           neogit
-          # hop
+          hop-nvim
           nvim-tree-lua
           # nvim-bufferline
-          # lualine
+          lualine-nvim
           nvim-cmp
           cmp-buffer
           cmp-nvim-lsp
@@ -550,7 +523,7 @@
           nvim-autopairs
           nvim-ts-autotag
           kommentary
-          # todo-comments
+          todo-comments-nvim
           bufdelete-nvim
           lazydev-nvim
           conform-nvim
@@ -582,12 +555,15 @@
           nvim-treesitter-textobjects
           nvim-treesitter.withAllGrammars
           # This is for if you only want some of the grammars
-          # (nvim-treesitter.withPlugins (
-          #   plugins: with plugins; [
-          #     nix
-          #     lua
-          #   ]
-          # ))
+           (nvim-treesitter.withPlugins (
+             plugins: with plugins; [
+               nix
+               lua
+	             haskell
+	             rust
+	             typescript
+             ]
+           ))
 
           # sometimes you have to fix some names
           { plugin = catppuccin-nvim; name = "catppuccin"; }
@@ -689,7 +665,7 @@
           suffix-path = true;
           suffix-LD = true;
           wrapRc = false;
-          unwrappedCfgPath = utils.mkLuaInline "os.getenv('HOME') .. '/some/path/to/your/config'";
+          unwrappedCfgPath = utils.mkLuaInline "os.getenv('HOME') .. '/home/linux/.config/nvim'";
         };
         categories = {
           general = true;
